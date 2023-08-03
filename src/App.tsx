@@ -4,6 +4,45 @@ import Image from "./features/image/Image";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { clear, load, save, selectImage } from "./features/image/imageSlice";
 import { SketchPicker } from "react-color";
+import { Button, ButtonGroup, Checkbox, FormControlLabel, Slider, Stack } from "@mui/material";
+import ZoomInIcon from "@mui/icons-material/ZoomIn";
+import ZoomOutIcon from "@mui/icons-material/ZoomOut";
+
+type ZoomPros = {
+  onChangeSize: (event: Event, value: number | number[], activeThumb: number) => void;
+  size: number;
+};
+
+const Zoom = ({ onChangeSize, size }: ZoomPros) => {
+  return (
+    <>
+      <label htmlFor="zoom">Zoom</label>
+      <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+        <ZoomOutIcon />
+        <Slider aria-label="Volume" value={size} onChange={onChangeSize} />
+        <ZoomInIcon />
+      </Stack>
+    </>
+  );
+};
+
+type StatusBtnBarProps = {
+  onSave: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  onClear: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+};
+
+const StatusBtnBar = ({ onSave, onClear }: StatusBtnBarProps) => {
+  return (
+    <ButtonGroup variant="contained" aria-label="outlined primary button group">
+      <Button onClick={onSave} variant="contained">
+        Save
+      </Button>{" "}
+      <Button onClick={onClear} variant="outlined">
+        Clear
+      </Button>
+    </ButtonGroup>
+  );
+};
 
 function App() {
   const [size, setSize] = React.useState(20);
@@ -12,10 +51,6 @@ function App() {
   const [deleteMode, setDeleteMode] = React.useState(false);
   const dispatch = useAppDispatch();
   const imageContent = useAppSelector(selectImage);
-
-  const onChangeSize = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSize(parseInt(e.target.value));
-  };
 
   const saveImage = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     dispatch(save());
@@ -49,23 +84,47 @@ function App() {
     setImage(compileImage(imageContent));
   }, [imageContent]);
 
+  const onChangeSize = (event: Event, value: number | number[], activeThumb: number) => {
+    setSize(value as number);
+  };
+
+  const label = { inputProps: { "aria-label": "Erase" } };
+
+  const presetColors = [
+    "#D0021B",
+    "#F5A623",
+    "#F8E71C",
+    "#8B572A",
+    "#7ED321",
+    "#417505",
+    "#BD10E0",
+    "#9013FE",
+    "#4A90E2",
+    "#50E3C2",
+    "#B8E986",
+    "#000000",
+    "#4A4A4A",
+    "#9B9B9B",
+    "#FFFFFF",
+  ];
+
   return (
     <div className="App">
-      <label htmlFor="zoom">Zoom</label>
-      <input type="number" name="zoom" onChange={onChangeSize} value={size} size={2} />
+      <Zoom onChangeSize={onChangeSize} size={size} />
       <br />
-      <button type="button" onClick={saveImage}>
-        Save
-      </button>{" "}
-      <button type="button" onClick={clearImage}>
-        Clear
-      </button>
+      <StatusBtnBar onSave={saveImage} onClear={clearImage} />
       <br />
-      <SketchPicker color={color} onChangeComplete={c => setColor(c.hex)} />
-      <label htmlFor="delete">Delete</label>
-      <input type="checkbox" name="delete" id="delete" onChange={toggleDeleteMode} />
+      <FormControlLabel control={<Checkbox {...label} onChange={toggleDeleteMode} />} label="Erase" />
+      <SketchPicker color={color} onChangeComplete={c => setColor(c.hex)} presetColors={presetColors} />
+
+
       <Image pxSize={size} color={deleteMode ? null : color} />
-      <textarea name="" id="" cols={100} rows={40} ref={ref} value={image} onChange={onChange}/>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <textarea name="" id="" cols={100} rows={40} ref={ref} value={image} onChange={onChange} />
       <button onClick={reloadImage}>Reload</button>
     </div>
   );
