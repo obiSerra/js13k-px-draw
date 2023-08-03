@@ -110,22 +110,24 @@ function App() {
 
   return (
     <div className="App">
-      <Zoom onChangeSize={onChangeSize} size={size} />
-      <br />
-      <StatusBtnBar onSave={saveImage} onClear={clearImage} />
-      <br />
-      <FormControlLabel control={<Checkbox {...label} onChange={toggleDeleteMode} />} label="Erase" />
-      <SketchPicker color={color} onChangeComplete={c => setColor(c.hex)} presetColors={presetColors} />
+      <div className="zoom-commands">
+        <Zoom onChangeSize={onChangeSize} size={size} />
+      </div>
+      <div className="status-commands">
+        <StatusBtnBar onSave={saveImage} onClear={clearImage} />
+      </div>
+      <div className="draw-commands">
+        <FormControlLabel control={<Checkbox {...label} onChange={toggleDeleteMode} />} label="Erase" />
+        <SketchPicker color={color} onChangeComplete={c => setColor(c.hex)} presetColors={presetColors} />
+      </div>
+      <div className="main-image">
+        <Image pxSize={size} color={deleteMode ? null : color} />
+      </div>
 
-
-      <Image pxSize={size} color={deleteMode ? null : color} />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <textarea name="" id="" cols={100} rows={40} ref={ref} value={image} onChange={onChange} />
-      <button onClick={reloadImage}>Reload</button>
+      <div className="image-data">
+        <textarea name="" id="" cols={100} rows={40} ref={ref} value={image} onChange={onChange} />
+        <button onClick={reloadImage}>Reload</button>
+      </div>
     </div>
   );
 }
