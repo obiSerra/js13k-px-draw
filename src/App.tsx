@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
-import "./App.css";
-import Image from "./features/image/Image";
-import { useAppDispatch, useAppSelector } from "./app/hooks";
-import { clear, load, save, selectImage } from "./features/image/imageSlice";
-import { SketchPicker } from "react-color";
-import { Button, ButtonGroup, Checkbox, FormControlLabel, Slider, Stack } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
+import { Button, ButtonGroup, Checkbox, FormControlLabel, Slider, Stack } from "@mui/material";
+import React, { useEffect } from "react";
+import { SketchPicker } from "react-color";
+import "./App.css";
+import { useAppDispatch, useAppSelector } from "./app/hooks";
+import Image from "./features/image/Image";
+import { clear, load, save, selectImage } from "./features/image/imageSlice";
 
 type ZoomPros = {
   onChangeSize: (event: Event, value: number | number[], activeThumb: number) => void;
@@ -51,6 +51,7 @@ function App() {
   const [deleteMode, setDeleteMode] = React.useState(false);
   const dispatch = useAppDispatch();
   const imageContent = useAppSelector(selectImage);
+  // const canvasSize = useAppSelector(state => state.image.canvasSize);
 
   const saveImage = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     dispatch(save());
@@ -68,17 +69,30 @@ function App() {
 
   const reloadImage = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const node = ref.current as any;
-    const parsed = JSON.parse(node.value.replaceAll('"n"', "null"));
-    dispatch(load(parsed));
+    let value = node.value;
+    try {
+      const parsed = JSON.parse(value);
+      dispatch(load(parsed));
+    } catch (e) {
+      console.error("Invalid JSON");
+      console.log(e);
+    }
   };
 
   const onChange = (e: any) => {
     const node = ref.current as any;
-    const parsed = JSON.parse(node.value.replaceAll('"n"', "null"));
-    setImage(compileImage(parsed));
+    let value = node.value;
+
+    try {
+      value = JSON.parse(value);
+    } catch (e) {
+      console.error("Invalid JSON");
+      console.log(e);
+    }
+    setImage(compileImage(value));
   };
 
-  const compileImage = (img: any) => JSON.stringify(img).replaceAll("null", '"n"').replaceAll("],[", "],\n[");
+  const compileImage = (img: any) => JSON.stringify(img).replaceAll("],[", "],\n[");
 
   useEffect(() => {
     setImage(compileImage(imageContent));
@@ -108,6 +122,8 @@ function App() {
     "#FFFFFF",
   ];
 
+  // const presetColors = ["#000000", "#0f7efb", "#4a90e2", "#79b2f2"];
+
   return (
     <div className="App">
       <div className="zoom-commands">
@@ -115,6 +131,17 @@ function App() {
       </div>
       <div className="status-commands">
         <StatusBtnBar onSave={saveImage} onClear={clearImage} />
+        {/* <div>
+          <br />
+          <br />
+          <label htmlFor="canvasSizeH">H</label>
+          <TextField name="canvasSIzeH" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} size="small"/>
+          <br />
+          <label htmlFor="canvasSizeL">L</label>
+          <TextField name="canvasSIzeL" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} size="small"/>
+
+
+        </div> */}
       </div>
       <div className="draw-commands">
         <FormControlLabel control={<Checkbox {...label} onChange={toggleDeleteMode} />} label="Erase" />
